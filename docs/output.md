@@ -262,9 +262,13 @@ High levels of duplication are not necessarily a problem as long as they are con
 - `02_alignment/bowtie2/target/la_duplicates/`
   - `.la_dedup.bam`: Coordinate sorted BAM file after Linear Amplification duplicate removal. This is the final post-processed BAM file and so will be saved by default in the results directory.
   - `.la_dedup.bam.bai`: BAI index file for coordinate sorted BAM file after Linear Amplification duplicate removal. This is the final post-processed BAM index file and so will be saved by default in the results directory.
-  - `.la_dedup_metrics.txt`: Metrics file from custom deduplication based on read 1 5' start location.
+  - `.la_dedup_metrics.txt`: Complete-primary-template counts and validation/resource diagnostics from the R1 alignment-boundary selector.
 
-In assays where linear amplification is used, the resulting library may contain reads that share the same start site but have a unique 3' end due to random cut and tagmentation with Tn5-ME-B. In this case, these duplicates should be removed by filtering all read 1's based on their 5' start site and keeping the read aligning with the highest mapping quality.
+The selector retains complete primary templates using the R1 alignment-boundary rule and numeric R1 MAPQ. Its legacy “reads” metric labels count primary templates, not all SAM records; secondary/supplementary records are reported separately. Retained templates are not independently verified original molecules. See the [count and input contract](linear-deduplication.md) for the exact geometry, identity and validation rules.
+
+When the optional complete-template filter is enabled, its separate JSON report records pairs rejected because one or both primary mates failed the existing filters. Readwise filter statistics and whole-template rejection counts have different units; use the [candidate method contract](la-complete-templates.md) when interpreting them.
+
+</details>
 
 ## 5. <a name='Fragment-basedQC'></a>Fragment-based QC
 

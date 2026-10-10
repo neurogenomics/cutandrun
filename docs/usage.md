@@ -126,7 +126,9 @@ The default for the pipeline therefore is to only run de-duplication on control 
 
 `--dedup_target_reads`
 
-If the assay has been modified to include a linear amplification step prior to PCR amplification, the user might want to remove the duplicates arising from the linear amplification step. This can be achieved by setting the `remove_linear_duplicates` to `true`. In this way, the pipeline uses a custom `.py` script to filter the reads so that all read 1's have a unique start site and always choosing the read with highest mapping quality. The removal of these kind of duplicates is an essential step of TIPseq analysis. In TIPseq, genomic DNA is cut with Tn5 loaded with T7 promoter sequence that gets inserted in the cut DNA fragment. The T7 promoter sequence is then used to perform in vitro transcription to produce RNA copies of the cut DNA fragment. These duplicates are referred to as linear duplicates. For an overview of the in vitro transcription using T7 promoter, see [here](https://doi.org/10.1186/1471-2164-4-19).
+For assays with linear amplification, `--remove_linear_duplicates true` selects one complete primary template per R1 alignment-boundary group, using numeric R1 MAPQ and preserving exact template identity. This coordinate rule is a model of duplicate ancestry; its retained count does not independently establish the number of original molecules. The [linear-deduplication contract](linear-deduplication.md) defines grouping, cell/read-group identity, tie handling, paired-record validation and the units of the reported counts.
+
+Readwise upstream filtering can leave an orphan, which the stricter deduplicator rejects. The opt-in [complete-template filter](la-complete-templates.md), enabled with `--la_complete_templates true`, keeps a pair only when both original primary records pass the existing filters. It changes the retained population and requires separate comparison with historical processing. It does not recover a missing mate.
 
 ### Read Normalisation
 
@@ -274,3 +276,7 @@ We recommend adding the following line to your environment to limit this (typica
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
+
+## Candidate LA complete-template filtering
+
+The opt-in `--la_complete_templates true` method keeps an original primary pair only when both mates pass the existing read filters. This changes historical readwise filtering semantics; see [the method contract, rejection counts and validation limits](la-complete-templates.md) before comparison or adoption.

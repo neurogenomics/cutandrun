@@ -132,6 +132,7 @@ include { DEEPTOOLS_QC                                     } from "../subworkflo
 include { PEAK_QC                                          } from "../subworkflows/local/peak_qc"
 include { SAMTOOLS_VIEW_SORT_STATS as FILTER_READS         } from "../subworkflows/local/samtools_view_sort_stats"
 include { DEDUPLICATE_LINEAR                               } from "../subworkflows/local/deduplicate_linear"
+include { COMPLETE_LA_TEMPLATES                            } from "../subworkflows/local/filter_la_templates"
 
 /*
 ========================================================================================
@@ -321,7 +322,11 @@ workflow CUTANDRUN {
      *  - Filter out reads below a threshold q score
      *  - Filter out mitochondrial reads (if required)
      */
+    if (params.la_complete_templates && (!params.run_read_filter || !params.run_remove_linear_dups)) {
+        error "--la_complete_templates requires enabled read filtering and linear duplicate removal"
+    }
     if (params.run_read_filter) {
+        ch_original_before_read_filter = ch_samtools_bam
         FILTER_READS (
             ch_samtools_bam,
             PREPARE_GENOME.out.allowed_regions.collect{it[1]}.ifEmpty([]),
@@ -333,6 +338,19 @@ workflow CUTANDRUN {
         ch_samtools_flagstat = FILTER_READS.out.flagstat
         ch_samtools_idxstats = FILTER_READS.out.idxstats
         ch_software_versions = ch_software_versions.mix(FILTER_READS.out.versions)
+        if (params.la_complete_templates) {
+            COMPLETE_LA_TEMPLATES (
+                ch_original_before_read_filter,
+                FILTER_READS.out.bam,
+                PREPARE_GENOME.out.fasta
+            )
+            ch_samtools_bam       = COMPLETE_LA_TEMPLATES.out.bam
+            ch_samtools_bai       = COMPLETE_LA_TEMPLATES.out.bai
+            ch_samtools_stats     = COMPLETE_LA_TEMPLATES.out.stats
+            ch_samtools_flagstat  = COMPLETE_LA_TEMPLATES.out.flagstat
+            ch_samtools_idxstats  = COMPLETE_LA_TEMPLATES.out.idxstats
+            ch_software_versions = ch_software_versions.mix(COMPLETE_LA_TEMPLATES.out.versions)
+        }
     }
     //EXAMPLE CHANNEL STRUCT: [[id:h3k27me3_R1, group:h3k27me3, replicate:1, single_end:false, is_control:false], [BAM]]
     //ch_samtools_bam | view
