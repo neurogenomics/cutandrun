@@ -318,6 +318,12 @@
                     "fa_icon": "fas fa-clone",
                     "description": "De-duplicate reads based on read 1 5' start position. Relevant for assays using linear amplification with tagmentation (default is false)."
                 },
+                "la_complete_templates": {
+                    "type": "boolean",
+                    "default": false,
+                    "fa_icon": "fas fa-clone",
+                    "description": "Candidate LA-only method: retain a complete original primary pair only when both mates pass existing read filters; publish template rejection counts. Requires read filtering and linear deduplication. Changes historical filtering semantics."
+                },
                 "end_to_end": {
                     "type": "boolean",
                     "fa_icon": "fas fa-clone",

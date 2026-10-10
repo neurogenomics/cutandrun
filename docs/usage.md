@@ -274,3 +274,7 @@ We recommend adding the following line to your environment to limit this (typica
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
+
+## Candidate LA complete-template filtering
+
+The opt-in `--la_complete_templates true` method keeps an original primary pair only when both mates pass the existing read filters. This changes historical readwise filtering semantics; see [the method contract, rejection counts and validation limits](la-complete-templates.md) before comparison or adoption.
