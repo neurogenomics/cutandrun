@@ -1,0 +1,1 @@
+../../../../bin/filter_la_templates.py
